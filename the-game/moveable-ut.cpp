@@ -1,9 +1,9 @@
-#include "Moveable.h"
-
+#include "Movable.h"
+#include <Bullet.h>
 #include <gtest/gtest.h>
 
 TEST(Moveable, one) {
-  rtf::Moveable mv("");
+  rtf::Movable mv("");
 
   mv.MoveLeft();
 

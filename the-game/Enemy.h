@@ -1,25 +1,64 @@
 #pragma once
 
-#include "Moveable.h"
+#include "Movable.h"
 
 namespace rtf {
 
-class Enemy : public Moveable {
+class Enemy : public Shootable {
   bool is_alive_ = true;
-  GameObject* target_ = nullptr;
-  
- public:
-  Enemy(const std::string& filename);
 
-  void set_target(GameObject* target) { target_ = target; }
+protected:
+  GameObject *target_ = nullptr;
+  enum class State { JustAppeared, WaitingForAttack, Attack, Hurts, Dying };
+  State currentState = State::JustAppeared;
 
-  void Update(sf::RenderWindow* window, sf::Time) override;
+public:
+  explicit Enemy(const std::string &filename);
 
-  void OnCollision(GameObject& obj) override;
+  void set_target(GameObject *target) { target_ = target; }
 
-  void Die();
+  void Update(sf::RenderWindow *window, sf::Time, Scene *scene) override;
+  void Attack(Scene *scene, const std::string &str) override;
 
-  bool is_alive() const { return is_alive_; }
+  void OnCollision(GameObject &obj) override;
 };
 
-}  // namespace rtf
+class Dragon : public Enemy {
+private:
+  static constexpr float realSpeed = 95;
+
+public:
+  explicit Dragon(const std::string &textureFile);
+  void Update(sf::RenderWindow *window, sf::Time, Scene *scene) override;
+  void OnCollision(GameObject &obj) override;
+  void Die() override;
+  friend class Scene;
+};
+
+class Magician : public Enemy {
+private:
+  static constexpr float realSpeed = 90;
+
+public:
+  explicit Magician(const std::string &textureFile);
+  void Update(sf::RenderWindow *window, sf::Time, Scene *scene) override;
+  void OnCollision(GameObject &obj) override;
+  void Die() override;
+  friend class Scene;
+};
+
+class Orc : public Enemy {
+private:
+  static constexpr float realSpeed = 120;
+
+public:
+  explicit Orc(const std::string &textureFile);
+  void Update(sf::RenderWindow *window, sf::Time, Scene *scene) override;
+  void OnCollision(GameObject &obj) override;
+  void Die() override;
+  void Attack(Scene *scene, const std::string &str) override;
+
+  friend class Scene;
+};
+
+} // namespace rtf

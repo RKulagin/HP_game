@@ -1,27 +1,25 @@
 #pragma once
 
-#include "Moveable.h"
-
+#include <Movable.h>
+#include <TextBox.h>
 namespace rtf {
 
-class Scene;
-
-class Player : public Moveable {
-
+class Player : public Shootable {
+private:
+  enum class State{Misunderstanding, Acting, WaitingNextTrain };
  public:
-  Player(const std::string& filename);
-  
-  bool CanAttack() const;
+  explicit Player(const std::string& filename);
 
-  void Attack();
-
-  void Controls(Scene& scene);
-
-  void Update(sf::RenderWindow* window, sf::Time time) override;
+  void Controls(Scene *scene);
+  void Attack(Scene* scene, const std::string& res) override ;
+  void Update(sf::RenderWindow* window, sf::Time time, Scene* scene) override;
 
   void OnCollision(GameObject&) override;
+
  private:
-  sf::Clock timer_;
-  sf::Time cd_;
+  sf::Time timeTillNextText;
+  State currentState = State::Misunderstanding;
+  std::unique_ptr<TextBox> text;
+  std::unique_ptr<TextBox> Say(const std::wstring &str, sf::Time time);
 };
 }  // namespace rtf

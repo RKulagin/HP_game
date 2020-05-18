@@ -11,7 +11,7 @@ GameObject::GameObject(const std::string& textureFile) {
 GameObject::GameObject(const GameObject& obj) {
   texture_ = obj.texture_;
   sprite_.setTexture(texture_);
-  sprite_.setScale(obj.SCALE_FACTOR, obj.SCALE_FACTOR);
+  sprite_.setScale(rtf::GameObject::SCALE_FACTOR, rtf::GameObject::SCALE_FACTOR);
   SetPosition(obj.sprite_.getPosition());
   tag_ = obj.tag_;
 }
@@ -21,7 +21,7 @@ GameObject& GameObject::operator=(const GameObject& obj) {
     texture_ = obj.texture_;
     SetPosition(obj.sprite_.getPosition());
     sprite_.setTexture(texture_);
-    sprite_.setScale(obj.SCALE_FACTOR, obj.SCALE_FACTOR);
+    sprite_.setScale(rtf::GameObject::SCALE_FACTOR, rtf::GameObject::SCALE_FACTOR);
     SetPosition(obj.sprite_.getPosition());
     tag_ = obj.tag_;
   }
@@ -38,9 +38,11 @@ void GameObject::LoadNewTexture(const std::string& file) {
   texture_.loadFromFile(file);
 }
 
+GameObject::GameState GameObject::gameState_ = GameObject::GameState::Menu;
+
 void GameObject::Draw(sf::RenderWindow* window) { window->draw(sprite_); }
 
-void GameObject::Update(sf::RenderWindow* window, sf::Time time) {
+void GameObject::Update(sf::RenderWindow* window, sf::Time time, Scene* scene) {
   Draw(window);
 }
 
@@ -50,3 +52,4 @@ void rtf::GameObject::OnCollision(GameObject& a, GameObject& b) {
 }
 
 void rtf::GameObject::OnCollision(GameObject& obj) {}
+

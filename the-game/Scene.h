@@ -1,26 +1,27 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
 #include <list>
-
-#include "Player.h"
-#include "Bullet.h"
-#include "Enemy.h"
-
 #include <memory>
-
 namespace rtf {
+class GameObject;
+class Player;
+
 class Scene {
- public:
+public:
   Scene(int w, int h);
   void Run();
   void AddObject(std::unique_ptr<GameObject> obj);
+  Player *GetPlayer() { return player_; }
 
-  private:
+private:
   sf::RenderWindow window_;
-  
+
   std::list<std::unique_ptr<GameObject>> objects_;
-  Player* player_ = nullptr;
+  Player *player_ = nullptr;
   sf::Clock clock_;
+  void Main_Action();
+  void GameOver();
 };
 
-}  // namespace rtf
+} // namespace rtf

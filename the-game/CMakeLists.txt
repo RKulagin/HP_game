@@ -21,10 +21,10 @@ HunterGate(
 
 
 project(the-game)
-#string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
+string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
 #string(APPEND CMAKE_CXX_FLAGS " -Wno-unused-command-line-argument")
-#string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
-string(APPEND CMAKE_CXX_FLAGS " -Wno-error=non-virtual-dtor")
+string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
+string(APPEND CMAKE_CXX_FLAGS " -Wno-error=unused-parameter")
 string(APPEND CMAKE_CXX_FLAGS " -lpthread")
 project(run-game)
 
@@ -38,9 +38,10 @@ add_library(the-game STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/Bullet.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Enemy.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/GameObject.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/Moveable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Movable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Player.cpp
-        )
+        ${CMAKE_CURRENT_SOURCE_DIR}/Scene.cpp
+        Ally.h Ally.cpp TextBox.h TextBox.cpp Menu.h)
 add_executable(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/ut/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/moveable-ut.cpp

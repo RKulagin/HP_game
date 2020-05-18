@@ -1,77 +1,129 @@
-#include "Player.h"
-#include "Scene.h"
+#include <Bullet.h>
+#include <Enemy.h>
+#include <Player.h>
+#include <SFML/Window/Mouse.hpp>
+#include <Scene.h>
+#include <cmath>
 
-using namespace rtf;
-
-Player::Player(const std::string& filename) : Moveable(filename) {
+namespace rtf {
+Player::Player(const std::string &filename) : Shootable(filename) {
   cd_ = sf::milliseconds(1000);
+  set_tag(Tag::Player);
+  SetSpeed(100);
 }
 
-bool Player::CanAttack() const { return timer_.getElapsedTime() > cd_; }
-
-void Player::Attack() { timer_.restart(); }
-
-void rtf::Player::Controls(Scene& scene) {
-  if (CanAttack()) {
-    auto& pos = Sprite().getPosition();
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-      auto bullet = std::make_unique<Bullet>("res/blast/laser-blast-png-4-original.png", pos);
-      bullet->MoveUp();
-      scene.AddObject(std::move(bullet));
-      Attack();
-    }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-      auto bullet = std::make_unique<Bullet>("res/blast/laser-blast-png-4-original.png", pos);
-      bullet->MoveDown();
-      scene.AddObject(std::move(bullet));
-      Attack();
-    }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-      auto bullet = std::make_unique<Bullet>("res/blast/laser-blast-png-4-original.png", pos);
-      bullet->MoveRight();
-      scene.AddObject(std::move(bullet));
-      Attack();
-    }
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-      auto bullet = std::make_unique<Bullet>("res/blast/laser-blast-png-4-original.png", pos);
-      bullet->MoveLeft();
-      scene.AddObject(std::move(bullet));
-      Attack();
-    }
+void rtf::Player::Controls(Scene *scene) {
+  if (CanAttack() && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+    Attack(scene, "../res/laser.png");
   }
 }
 
-void Player::Update(sf::RenderWindow* window, sf::Time time) {
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-    MoveUp();
-  }
-
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-    MoveDown();
-  }
-
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-    MoveRight();
-  }
-
-  if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-    MoveLeft();
-  }
-
-  Draw(window);
-
-  ResetMoveDirection();
+void Player::Attack(Scene *scene, const std::string &res) {
+  auto pos = Sprite().getPosition();
+  auto mouseCoords = static_cast<sf::Vector2f>(sf::Mouse::getPosition());
+  std::cerr << mouseCoords.x << "|" << mouseCoords.y << std::endl;
+  auto bullet = std::make_unique<Bullet>(res, pos);
+  bullet->SetSpeed(300);
+  bullet->SetDirection(*this, mouseCoords);
+  bullet->Rotate(bullet->Angle());
+  std::cerr << bullet->Angle() * 180 / M_PI << "\n";
+  scene->AddObject(std::move(bullet));
+  timer_.restart();
 }
 
-void rtf::Player::OnCollision(GameObject& obj) {
-  // ≈ÒÎË ÒÚÓÎÍÌÛÎÒˇ Ò ‚‡„ÓÏ, ÚÓ ÛÏÂÌ¸¯‡ÂÏ ÊËÁÌË.
+void Player::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
+  if (isAlive()) {
+    SetMomentumSpeed(speedPixelsPerSecond_ * time.asSeconds());
+    timeTillNextText -= time;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+      MoveUp();
+      if (text != nullptr) {
+        text->MoveUp();
+      }
+    }
 
-  // ≈ÒÎË ÒÚÓÎÍÌÛÎÒˇ Ò ·‡ÙÙÓÏ, ÚÓ Û‚Â˜Ë‚ÂÏ ÊËÁÌË/ÛÏÂÌ¸¯‡ÂÏ Cooldown/ÛÒÍÓˇÂÏÒˇ/·‡ÙÙ˚ Ë etc.
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+      MoveDown();
+      if (text != nullptr) {
+        text->MoveDown();
+      }
+    }
 
-  // ≈ÒÎË ÒÚÓÎÍÌÛÎÒˇ Ò ‰Â·‡ÙÙÓÏ...
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+      MoveRight();
+      if (text != nullptr) {
+        text->MoveRight();
+      }
+    }
 
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+      MoveLeft();
+      if (text != nullptr) {
+        text->MoveLeft();
+      }
+    }
+
+    if (currentState == State::Misunderstanding &&
+        timeAlive > sf::milliseconds(50)) {
+      text = Say(L" –ü–æ–¥–æ–∂–¥–∏—Ç–µ,\n –¥–∏—Ä–µ–∫—Ç–æ—Ä,\n –∫–∞–∫–∏–µ —Å—Ç—Ä–∞–∂–∏?", sf::seconds(2));
+      currentState = State::WaitingNextTrain;
+    }
+
+    if (currentState == State::WaitingNextTrain &&
+        timeAlive > sf::seconds(4.5)) {
+      text = Say(L"–ö–∞–∂–µ—Ç—Å—è, —á—Ç–æ-—Ç–æ\n–µ–¥–µ—Ç...\n–ü–æ—Ä–∞ –¥–æ—Å—Ç–∞—Ç—å\n–ø–∞–ª–æ—á–∫—É",
+                 sf::seconds(2));
+      currentState = State::Acting;
+
+      texture_.loadFromFile("../res/Herbalist/PNG/PNG Sequences/Idle/001.png");
+      sprite_.setTexture(texture_);
+      sprite_.setScale(SCALE_FACTOR, SCALE_FACTOR);
+      timeTillNextText = sf::seconds(2.1);
+    }
+    if (currentState == State::Acting && timeTillNextText < sf::seconds(0)) {
+      text = Say(L"–ß—Ç–æ–±—ã —Å—Ç—Ä–µ–ª—è—Ç—å,\n–∫–ª–∏–∫–∞–π –õ–ö–ú –ø–æ\n–Ω–∞–ø—Ä–∞–≤–ª–µ–Ω–∏—é —É–¥–∞—Ä–∞.\n–ù–µ "
+                 L"–ø–æ–¥–ø—É—Å–∫–∞–π –∏x\n—Å–ª–∏—à–∫–æ–º –±–ª–∏–∑–∫–æ.",
+                 sf::seconds(2));
+    }
+
+    if (text != nullptr) {
+      text->Update(window, time, scene);
+      //      std::cerr<<text->timeToLive.asSeconds();
+      if (!text->isAlive()) {
+        text = nullptr;
+      }
+    }
+
+    Draw(window);
+
+    ResetMoveDirection();
+
+    timeAlive += time;
+  }
 }
+
+void rtf::Player::OnCollision(GameObject &obj) {
+  if (obj.isAlive()) {
+    if (obj.is(Tag::Train)) {
+      gameState_ = GameState ::Epilogue;
+    }
+    if (obj.is(Tag::Enemy) && dynamic_cast<Enemy&>(obj).CanAttack()) {
+      HP -= 10;
+      dynamic_cast<Shootable&>(obj).Attack(nullptr, "");
+    }
+    if (obj.is(Tag::EnemyBullet)) {
+      HP -= 15;
+    }
+    if (HP < 0) {
+      gameState_ = GameState::GameOver;
+      Die();
+    }
+  }
+  std::cerr << "P" << HP << "HP\n";
+}
+
+std::unique_ptr<TextBox> Player::Say(const std::wstring &str, sf::Time time) {
+  return std::make_unique<TextBox>(
+      str, Sprite().getPosition() - sf::Vector2f(125, 100), time, GetSpeed());
+}
+} // namespace rtf

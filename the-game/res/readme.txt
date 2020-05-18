@@ -1,3 +1,2 @@
-https://opengameart.org/content/2d-game-mage-character-sprite
-https://opengameart.org/content/2d-game-orcs-sprite
-https://opengameart.org/content/2d-game-knight-character-sprite
+Font that was used for the background of the preview:
+https://www.dafont.com/digital-disco.font
