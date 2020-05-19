@@ -10,10 +10,8 @@ namespace rtf {
 
 class Ally : public Movable {
 private:
-  enum class State{
-    TimeToSing, GoInsideTrain
-  };
-  enum class DialoguePart{
+  enum class State { TimeToSing, GoInsideTrain };
+  enum class DialoguePart {
     EverythingJustBegins,
     RailwayIsAGoodName,
     LooksDifferent,
@@ -25,12 +23,12 @@ private:
     Defenders,
     End,
   };
+
 public:
   explicit Ally(const std::string &filename);
 
   void Update(sf::RenderWindow *window, sf::Time time, Scene *scene) override;
   void OnCollision(GameObject &) override;
-
 
 private:
   //  sf::Time cd_;
@@ -38,7 +36,8 @@ private:
   std::unique_ptr<TextBox> text;
 
   std::unique_ptr<TextBox> Say(const std::wstring &str, sf::Time time);
-DialoguePart dialogue = DialoguePart::EverythingJustBegins;
+  DialoguePart dialogue = DialoguePart::EverythingJustBegins;
+  void IntroDialogue(sf::RenderWindow *window, sf::Time time, Scene *scene);
 };
 
 } // namespace rtf

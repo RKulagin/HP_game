@@ -31,13 +31,11 @@ Dragon::Dragon(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);
   set_tag(Tag::Dragon);
   cd_ = sf::milliseconds(2500);
-  HP = -1;
 }
 Magician::Magician(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);
   set_tag(Tag::Magician);
   cd_ = sf::milliseconds(3000);
-  HP = -1;
 }
 Orc::Orc(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);

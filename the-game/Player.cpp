@@ -108,46 +108,51 @@ void Player::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
       ResetMoveDirection();
 
     } else if (gameState_ == GameState::Introduction) {
-      if (timeAlive > sf::seconds(0) && dialogue == DialoguePart::Hello) {
-       text = Say(L"Профессор, \nгде мы?", sf::seconds(3));
-        dialogue = DialoguePart::SeemsLikeRailway;
-      }
-      if (timeAlive > sf::seconds(3) &&
-          dialogue == DialoguePart::SeemsLikeRailway) {
-        text = Say(L"Это место, \nоно выглядит, \nкак вокзал \nКингс-Кросс.", sf::seconds(3));
-        dialogue = DialoguePart::IHaveVariants;
-      }
-      if (timeAlive > sf::seconds(8) &&
-          dialogue == DialoguePart::IHaveVariants) {
-        text = Say(L"Разве у меня\nесть выбор?", sf::seconds(3));
-        dialogue = DialoguePart::IWantToMeetFriends;
-      }
-      if (timeAlive > sf::seconds(11) &&
-          dialogue == DialoguePart::IWantToMeetFriends) {
-        text = Say(L"Я хочу помочь\nсвоим друзьям, \nхочу вернуться \nк ним.", sf::seconds(3));
-        dialogue = DialoguePart::WhereDoesThisTrainGo;
-      }
-      if (timeAlive > sf::seconds(14) && dialogue == DialoguePart::WhereDoesThisTrainGo){
-        text = Say(L"Подождите, а этот\n поезд куда идёт?", sf::seconds(3));
-        dialogue = DialoguePart::End;
-      }
-      if (timeAlive>sf::seconds(25) && dialogue == DialoguePart::End){
-        gameState_ = GameState::Action;
-      }
-      if (text != nullptr) {
-        text->Update(window, time, scene);
-        //      std::cerr<<text->timeToLive.asSeconds();
-        if (!text->isAlive()) {
-          text = nullptr;
-        }
-      }
+      DialogueIntro(window, time, scene);
 
       Draw(window);
     }
     timeAlive += time;
   }
 }
-
+void rtf::Player::DialogueIntro(sf::RenderWindow *window, sf::Time time,
+                                Scene *scene) {
+  if (timeAlive > sf::seconds(0) && dialogue == DialoguePart::Hello) {
+    text = Say(L"Профессор, \nгде мы?", sf::seconds(3));
+    dialogue = DialoguePart::SeemsLikeRailway;
+  }
+  if (timeAlive > sf::seconds(3) &&
+      dialogue == DialoguePart::SeemsLikeRailway) {
+    text = Say(L"Это место, \nоно выглядит, \nкак вокзал \nКингс-Кросс.",
+               sf::seconds(3));
+    dialogue = DialoguePart::IHaveVariants;
+  }
+  if (timeAlive > sf::seconds(8) && dialogue == DialoguePart::IHaveVariants) {
+    text = Say(L"Разве у меня\nесть выбор?", sf::seconds(3));
+    dialogue = DialoguePart::IWantToMeetFriends;
+  }
+  if (timeAlive > sf::seconds(11) &&
+      dialogue == DialoguePart::IWantToMeetFriends) {
+    text = Say(L"Я хочу помочь\nсвоим друзьям, \nхочу вернуться \nк ним.",
+               sf::seconds(3));
+    dialogue = DialoguePart::WhereDoesThisTrainGo;
+  }
+  if (timeAlive > sf::seconds(14) &&
+      dialogue == DialoguePart::WhereDoesThisTrainGo) {
+    text = Say(L"Подождите, а этот\n поезд куда идёт?", sf::seconds(3));
+    dialogue = DialoguePart::End;
+  }
+  if (timeAlive > sf::seconds(25) && dialogue == DialoguePart::End) {
+    gameState_ = GameState::Action;
+  }
+  if (text != nullptr) {
+    text->Update(window, time, scene);
+    //      std::cerr<<text->timeToLive.asSeconds();
+    if (!text->isAlive()) {
+      text = nullptr;
+    }
+  }
+}
 void rtf::Player::OnCollision(GameObject &obj) {
   if (obj.isAlive()) {
     if (obj.is(Tag::Train) && Sprite().getPosition().x > 1700) {
