@@ -49,7 +49,11 @@ public:
   const sf::Sprite &Sprite() const { return sprite_; }
   void Rotate(float angle) { sprite_.rotate(angle * 180 / M_PI); }
   void LoadNewTexture(const std::string &file);
-
+  float DistanceTo(GameObject *object) const {
+    return std::sqrt(
+        powf(object->Sprite().getPosition().x - Sprite().getPosition().x, 2) +
+        powf(object->Sprite().getPosition().y - Sprite().getPosition().y, 2));
+  }
   virtual void Draw(sf::RenderWindow *window);
 
   virtual void Update(sf::RenderWindow *window, sf::Time time, Scene *scene);

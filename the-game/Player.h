@@ -31,5 +31,6 @@ private:
   DialoguePart dialogue = DialoguePart::Hello;
   std::unique_ptr<TextBox> text;
   std::unique_ptr<TextBox> Say(const std::wstring &str, sf::Time time);
+  friend class Orc;
 };
 } // namespace rtf

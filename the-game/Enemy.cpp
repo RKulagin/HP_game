@@ -31,11 +31,13 @@ Dragon::Dragon(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);
   set_tag(Tag::Dragon);
   cd_ = sf::milliseconds(2500);
+  HP = -1;
 }
 Magician::Magician(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);
   set_tag(Tag::Magician);
   cd_ = sf::milliseconds(3000);
+  HP = -1;
 }
 Orc::Orc(const std::string &textureFile) : Enemy(textureFile) {
   SetSpeed(100);
@@ -64,9 +66,16 @@ void Dragon::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
         Attack(scene, "../res/dragon/fire_attack3.png");
         timer_.restart();
       }
+      if (Sprite().getPosition().y > 100) {
+        direction_ =
+            sf::Vector2f(-50 * time.asSeconds(), -10 * time.asSeconds());
+      }
     }
-    MP = timer_.getElapsedTime().asSeconds() / cd_.asSeconds() * 100;
 
+    HP.MoveDirection(direction_);
+    MP.MoveDirection(direction_);
+
+    MP = timer_.getElapsedTime().asSeconds() / cd_.asSeconds() * 100;
     HP.Update(window, time, scene);
     MP.Update(window, time, scene);
 
@@ -99,9 +108,8 @@ void Magician::OnCollision(GameObject &obj) {
   }
 }
 void Orc::OnCollision(GameObject &obj) {
-  if (obj.is(Tag::PlayerBullet) && obj.isAlive()) {
+  if (!obj.is(Tag::Player) && obj.is(Tag::PlayerBullet) && obj.isAlive()) {
     HP -= 15;
-    //  Freese(sf::seconds(0.5));
     if (HP < 0) {
       Die();
     }
@@ -131,7 +139,15 @@ void Magician::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
         Attack(scene, "../res/green_laser.png");
         timer_.restart();
       }
+      if (Sprite().getPosition().y < 900) {
+        direction_ =
+            sf::Vector2f(-40 * time.asSeconds(), 20 * time.asSeconds());
+      }
     }
+
+    HP.MoveDirection(direction_);
+    MP.MoveDirection(direction_);
+
     HP.Update(window, time, scene);
     MP.Update(window, time, scene);
 
@@ -162,6 +178,10 @@ void Orc::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
     }
     if (currentState == Enemy::State::Attack) {
       MoveTo(target_);
+      if (DistanceTo(scene->GetPlayer()) < 100 && CanAttack()) {
+        Attack(scene, "");
+        timer_.restart();
+      }
     }
     HP.Update(window, time, scene);
     MP.Update(window, time, scene);
@@ -203,19 +223,19 @@ void Dragon::Die() {
 void Enemy::Attack(Scene *scene, const std::string &str) {
   auto pos = Sprite().getPosition() + sf::Vector2f(-10, 75);
   auto targetCoords = target_->Sprite().getPosition();
-  std::cerr << targetCoords.x << "|" << targetCoords.y << std::endl;
+  //  std::cerr << targetCoords.x << "|" << targetCoords.y << std::endl;
   auto bullet = std::make_unique<Bullet>(str, pos);
   bullet->SetSpeed(300);
   bullet->SetDirection(*this, pos, targetCoords);
   bullet->Rotate(bullet->Angle());
-  std::cerr << bullet->Angle() * 180 / M_PI << "\n";
+  //  std::cerr << bullet->Angle() * 180 / M_PI << "\n";
   scene->AddObject(std::move(bullet));
   timer_.restart();
 }
 
 void Orc::Attack(Scene *scene, const std::string &str) {
   // Attack Animation
-  scene->GetPlayer()->OnCollision(*this);
+  scene->GetPlayer()->HP -= 15;
 }
 
 } // namespace rtf
