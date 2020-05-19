@@ -18,12 +18,13 @@ void Bullet::Update(sf::RenderWindow *window, sf::Time time, Scene *scene) {
     timeAlive += time;
   }
 }
-void Bullet::SetDirection(const GameObject &from, sf::Vector2f to) {
-  auto direction = to - from.Sprite().getPosition();
+void Bullet::SetDirection(const GameObject &parent, sf::Vector2f from,
+                          sf::Vector2f to) {
+  auto direction = to - from;
   auto len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
   direction /= len;
   directionPerSecond_ = direction;
-  if (!from.is(Tag::Player)) {
+  if (!parent.is(Tag::Player)) {
     set_tag(Tag::EnemyBullet);
   }
 }

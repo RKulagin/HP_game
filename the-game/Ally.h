@@ -13,6 +13,18 @@ private:
   enum class State{
     TimeToSing, GoInsideTrain
   };
+  enum class DialoguePart{
+    EverythingJustBegins,
+    RailwayIsAGoodName,
+    LooksDifferent,
+    YouHaveToChoose,
+    YouAlwaysCanChoose,
+    YouBrave,
+    Further,
+    ItsTimeToGo,
+    Defenders,
+    End,
+  };
 public:
   explicit Ally(const std::string &filename);
 
@@ -26,7 +38,7 @@ private:
   std::unique_ptr<TextBox> text;
 
   std::unique_ptr<TextBox> Say(const std::wstring &str, sf::Time time);
-
+DialoguePart dialogue = DialoguePart::EverythingJustBegins;
 };
 
 } // namespace rtf

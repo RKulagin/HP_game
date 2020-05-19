@@ -15,9 +15,9 @@ TextBox::TextBox(const std::wstring &str, sf::Vector2f vec, sf::Time ttl,
   font.loadFromFile("../res/arial.ttf");
   text.setString(str);
   if (str.size() > 70) {
-    text.setCharacterSize(18);
+    text.setCharacterSize(16);
   } else {
-    text.setCharacterSize(22);
+    text.setCharacterSize(20);
   }
   text.setFillColor(sf::Color::Black);
   text.setFont(font);
